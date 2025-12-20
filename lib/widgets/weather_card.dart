@@ -101,7 +101,7 @@ class WeatherCard extends StatelessWidget {
   TextStyle _temperature() {
     return const TextStyle(
       fontFamily: 'SFCompactDisplay',
-      fontSize: 96,
+      fontSize: 120,
       fontWeight: FontWeight.bold,
       color: AppColors.textBlack,
       height: 1.0,

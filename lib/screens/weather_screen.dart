@@ -1,8 +1,10 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart' hide SearchBar;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../config/app_colors.dart';
 import '../providers/weather_provider.dart';
 import '../widgets/weather_card.dart';
+import '../widgets/search_bar.dart';
 
 class WeatherScreen extends ConsumerStatefulWidget {
   const WeatherScreen({super.key});
@@ -14,6 +16,7 @@ class WeatherScreen extends ConsumerStatefulWidget {
 class _WeatherScreenState extends ConsumerState<WeatherScreen> {
   late TextEditingController _searchController;
   String _currentCity = 'London';
+  bool _showSearch = false;
 
   @override
   void initState() {
@@ -30,9 +33,16 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
   void _searchWeather() {
     final query = _searchController.text.trim();
     if (query.isNotEmpty) {
-      setState(() => _currentCity = query);
+      setState(() {
+        _currentCity = query;
+        _showSearch = false;
+      });
       _searchController.clear();
     }
+  }
+
+  void _toggleSearch() {
+    setState(() => _showSearch = !_showSearch);
   }
 
   @override
@@ -45,16 +55,36 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
           ? AppColors.getCardColor(weatherAsync.value!.description)
           : AppColors.cloudyBlue,
       appBar: AppBar(
-        title: Text(
-          (weatherAsync.value?.city ?? 'Air Cast'),
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontFamily: 'SFProText',
-            fontSize: 24,
-            fontWeight: FontWeight.w600,
-            color: AppColors.textBlack,
-          ),
-        ),
+        title: _showSearch
+            ? SearchBar(
+                controller: _searchController,
+                onSearch: _searchWeather,
+                onClose: _toggleSearch,
+              )
+            : InkWell(
+                onTap: _toggleSearch,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      (weatherAsync.value?.city ?? 'Air Cast'),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'SFProText',
+                        fontSize: 24,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textBlack,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    const Icon(
+                      CupertinoIcons.chevron_down,
+                      color: AppColors.statsBackground,
+                      size: 20,
+                    ),
+                  ],
+                ),
+              ),
         backgroundColor: AppColors.getCardColor(
           weatherAsync.value?.description ?? '',
         ),
@@ -115,73 +145,6 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
           },
         ),
       ),
-    );
-  }
-
-  Widget _buildSearchBar() {
-    return Row(
-      children: [
-        Expanded(
-          child: TextField(
-            controller: _searchController,
-            style: _textStyle(fontSize: 16, fontWeight: FontWeight.w500),
-            decoration: InputDecoration(
-              hintText: 'Search city...',
-              hintStyle: _textStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: AppColors.textGray,
-              ),
-              prefixIcon: const Icon(
-                Icons.location_on,
-                color: AppColors.textBlack,
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(
-                  color: AppColors.textBlack,
-                  width: 1.5,
-                ),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(
-                  color: AppColors.textBlack,
-                  width: 1.5,
-                ),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(
-                  color: AppColors.cloudyBlue,
-                  width: 2,
-                ),
-              ),
-            ),
-            onSubmitted: (_) => _searchWeather(),
-          ),
-        ),
-        const SizedBox(width: 12),
-        GestureDetector(
-          onTap: _searchWeather,
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.cloudyBlue,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.search,
-              color: AppColors.textWhite,
-              size: 24,
-            ),
-          ),
-        ),
-      ],
     );
   }
 
