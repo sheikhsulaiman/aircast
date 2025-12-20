@@ -41,4 +41,37 @@ class WeatherService {
       throw Exception('Unexpected error: $e');
     }
   }
+
+  /// Fetch weather by coordinates
+  /// Example: getWeatherByCoordinates(51.5074, -0.1278) for London
+  Future<Weather> getWeatherByCoordinates(String lat, String lon) async {
+    try {
+      final response = await _dio.get(
+        _baseUrl,
+        queryParameters: {
+          'lat': lat,
+          'lon': lon,
+          'appid': _apiKey,
+          'units': 'metric',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return Weather.fromJson(response.data);
+      } else {
+        throw Exception('Failed to load weather data');
+      }
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+        throw Exception('Locatin not found');
+      } else if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
+        throw Exception('Connection timed out');
+      } else {
+        throw Exception('Failed to load weather data: ${e.message}');
+      }
+    } catch (e) {
+      throw Exception('Unexpected error: $e');
+    }
+  }
 }
