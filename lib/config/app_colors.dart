@@ -15,6 +15,8 @@ class AppColors {
   static const Color statsBackground = Color(0xFF1A1A1A);
   static const Color badgeGreen = Color(0xFF2D5F2E);
   static const Color appBackground = Color(0xFFFAFAFA);
+  static const Color appBackgroundDark = Color(0xFF121212);
+  static const Color surfaceDark = Color(0xFF1E1E1E);
 
   // Get card color based on weather description
   static Color getCardColor(String weatherDescription) {
