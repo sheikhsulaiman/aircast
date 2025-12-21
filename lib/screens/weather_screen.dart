@@ -15,7 +15,6 @@ class WeatherScreen extends ConsumerStatefulWidget {
 
 class _WeatherScreenState extends ConsumerState<WeatherScreen> {
   late TextEditingController _searchController;
-  String _currentCity = 'London';
   bool _showSearch = false;
 
   @override
@@ -33,8 +32,8 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
   void _searchWeather() {
     final query = _searchController.text.trim();
     if (query.isNotEmpty) {
+      ref.read(searchQueryProvider.notifier).state = query;
       setState(() {
-        _currentCity = query;
         _showSearch = false;
       });
       _searchController.clear();
@@ -47,8 +46,9 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Watch the weather provider with current city
-    final weatherAsync = ref.watch(weatherByCityProvider(_currentCity));
+    // Watch the search query and weather provider
+    final currentCity = ref.watch(searchQueryProvider);
+    final weatherAsync = ref.watch(weatherByCityProvider(currentCity));
 
     return Scaffold(
       backgroundColor: weatherAsync.value != null
