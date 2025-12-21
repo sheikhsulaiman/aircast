@@ -66,36 +66,52 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
     return Scaffold(
       backgroundColor: _getBackgroundColor(weatherAsync),
       appBar: AppBar(
-        title: _showSearch
-            ? SearchBar(
-                controller: _searchController,
-                onSearch: _searchWeather,
-                onClose: _toggleSearch,
-              )
-            : InkWell(
-                onTap: _toggleSearch,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      (currentCity.isEmpty ? 'Select City' : currentCity),
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: 'SFProText',
-                        fontSize: 24,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textBlack,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    const Icon(
-                      CupertinoIcons.chevron_down,
-                      color: AppColors.statsBackground,
-                      size: 20,
-                    ),
-                  ],
+        title: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 400),
+          transitionBuilder: (child, animation) {
+            return FadeTransition(
+              opacity: animation,
+              child: ScaleTransition(
+                scale: Tween<double>(begin: 0.8, end: 1).animate(
+                  CurvedAnimation(parent: animation, curve: Curves.easeOut),
                 ),
+                child: child,
               ),
+            );
+          },
+          child: _showSearch
+              ? SearchBar(
+                  key: const ValueKey('search_bar'),
+                  controller: _searchController,
+                  onSearch: _searchWeather,
+                  onClose: _toggleSearch,
+                )
+              : InkWell(
+                  key: const ValueKey('city_title'),
+                  onTap: _toggleSearch,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        (currentCity.isEmpty ? 'Select City' : currentCity),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontFamily: 'SFProText',
+                          fontSize: 24,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textBlack,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      const Icon(
+                        CupertinoIcons.chevron_down,
+                        color: AppColors.statsBackground,
+                        size: 20,
+                      ),
+                    ],
+                  ),
+                ),
+        ),
         backgroundColor: _getBackgroundColor(weatherAsync),
       ),
       body: SingleChildScrollView(
