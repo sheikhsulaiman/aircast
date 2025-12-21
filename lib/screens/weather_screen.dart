@@ -1,3 +1,4 @@
+import 'package:aircast/models/weather_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' hide SearchBar;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -44,6 +45,18 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
     setState(() => _showSearch = !_showSearch);
   }
 
+  Color _getBackgroundColor(AsyncValue<Weather> weatherAsync) {
+    try {
+      return weatherAsync.when(
+        data: (weather) => AppColors.getCardColor(weather.description),
+        loading: () => AppColors.cloudyBlue,
+        error: (_, __) => AppColors.rainyPink,
+      );
+    } catch (e) {
+      return AppColors.cloudyBlue;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // Watch the search query and weather provider
@@ -51,9 +64,7 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
     final weatherAsync = ref.watch(weatherByCityProvider(currentCity));
 
     return Scaffold(
-      backgroundColor: weatherAsync.value != null
-          ? AppColors.getCardColor(weatherAsync.value!.description)
-          : AppColors.cloudyBlue,
+      backgroundColor: _getBackgroundColor(weatherAsync),
       appBar: AppBar(
         title: _showSearch
             ? SearchBar(
@@ -67,7 +78,7 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      (weatherAsync.value?.city ?? 'Air Cast'),
+                      (currentCity.isEmpty ? 'Select City' : currentCity),
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: 'SFProText',
@@ -85,9 +96,7 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
                   ],
                 ),
               ),
-        backgroundColor: AppColors.getCardColor(
-          weatherAsync.value?.description ?? '',
-        ),
+        backgroundColor: _getBackgroundColor(weatherAsync),
       ),
       body: SingleChildScrollView(
         child: weatherAsync.when(
@@ -113,33 +122,60 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
                 color: AppColors.rainyPink,
                 borderRadius: BorderRadius.circular(24),
               ),
-              child: Column(
-                children: [
-                  const Icon(
-                    Icons.error_outline,
-                    size: 48,
-                    color: AppColors.textWhite,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Error',
-                    style: _textStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    const SizedBox(height: 64),
+                    const Icon(
+                      Icons.error_outline,
+                      size: 48,
                       color: AppColors.textWhite,
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    error.toString(),
-                    textAlign: TextAlign.center,
-                    style: _textStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      color: AppColors.textWhite,
+                    const SizedBox(height: 16),
+                    Text(
+                      'Error',
+                      style: _textStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textWhite,
+                      ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 8),
+                    Text(
+                      error.toString(),
+                      textAlign: TextAlign.center,
+                      style: _textStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: AppColors.textWhite,
+                      ),
+                    ),
+                    const SizedBox(height: 64),
+                    ElevatedButton(
+                      onPressed: _toggleSearch,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.textBlack,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        _showSearch ? 'Close' : 'Search Again',
+                        style: _textStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textWhite,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             );
           },
