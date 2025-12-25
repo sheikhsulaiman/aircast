@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../config/app_colors.dart';
 import '../providers/weather_provider.dart';
+import '../screens/detailed_forecast_screen.dart';
 import 'forecast_card.dart';
 
 /// Widget that displays the weekly forecast
@@ -35,7 +36,22 @@ class ExtendedForecast extends ConsumerWidget {
                   'Weekly Forecast',
                   style: _textStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
-                Icon(Icons.arrow_forward, color: AppColors.textBlack, size: 20),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            DetailedForecastScreen(city: city),
+                      ),
+                    );
+                  },
+                  child: Icon(
+                    Icons.arrow_forward,
+                    color: AppColors.textBlack,
+                    size: 20,
+                  ),
+                ),
               ],
             ),
 
