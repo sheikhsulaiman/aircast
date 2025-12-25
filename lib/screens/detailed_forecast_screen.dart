@@ -64,7 +64,7 @@ class _DetailedForecastScreenState
       }
 
       // Simple scroll: ~130 pixels per item
-      final scrollOffset = targetIndex * 130.0;
+      final scrollOffset = (targetIndex * 100.0);
 
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
