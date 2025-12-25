@@ -5,7 +5,6 @@ import 'package:intl/intl.dart';
 import '../config/app_colors.dart';
 import '../models/weather_model.dart';
 import 'stats_card.dart';
-import 'forecast_card.dart';
 import 'date_badge.dart';
 
 class WeatherCard extends ConsumerWidget {

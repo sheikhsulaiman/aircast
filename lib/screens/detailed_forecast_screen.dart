@@ -5,14 +5,80 @@ import '../config/app_colors.dart';
 import '../providers/weather_provider.dart';
 
 /// Screen that displays all forecast entries in a calendar view
-class DetailedForecastScreen extends ConsumerWidget {
+class DetailedForecastScreen extends ConsumerStatefulWidget {
   final String city;
+  final DateTime? initialDate;
 
-  const DetailedForecastScreen({super.key, required this.city});
+  const DetailedForecastScreen({
+    super.key,
+    required this.city,
+    this.initialDate,
+  });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final forecastAsync = ref.watch(forecastByCityProvider(city));
+  ConsumerState<DetailedForecastScreen> createState() =>
+      _DetailedForecastScreenState();
+}
+
+class _DetailedForecastScreenState
+    extends ConsumerState<DetailedForecastScreen> {
+  late ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    // Scroll to initial date after widget is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollToDate();
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollToDate() {
+    if (widget.initialDate == null) return;
+
+    // Get the forecast data
+    final forecastAsync = ref.read(forecastByCityProvider(widget.city));
+    forecastAsync.whenData((forecast) {
+      final allForecasts = forecast.allForecasts;
+
+      // Find the index of the first entry matching the initial date
+      int targetIndex = 0;
+      for (int i = 0; i < allForecasts.length; i++) {
+        final currentDate = allForecasts[i].date;
+        final currentDateKey =
+            '${currentDate.day}/${currentDate.month}/${currentDate.year}';
+        final targetDateKey =
+            '${widget.initialDate!.day}/${widget.initialDate!.month}/${widget.initialDate!.year}';
+
+        if (currentDateKey == targetDateKey) {
+          targetIndex = i;
+          break;
+        }
+      }
+
+      // Simple scroll: ~130 pixels per item
+      final scrollOffset = targetIndex * 130.0;
+
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          scrollOffset.clamp(0.0, _scrollController.position.maxScrollExtent),
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final forecastAsync = ref.watch(forecastByCityProvider(widget.city));
 
     return Scaffold(
       appBar: AppBar(
@@ -23,7 +89,7 @@ class DetailedForecastScreen extends ConsumerWidget {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Forecast - $city',
+          'Forecast - ${widget.city}',
           style: _textStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
         centerTitle: true,
@@ -34,6 +100,7 @@ class DetailedForecastScreen extends ConsumerWidget {
           final allForecasts = forecast.allForecasts;
 
           return ListView.builder(
+            controller: _scrollController,
             padding: const EdgeInsets.all(16),
             itemCount: allForecasts.length,
             itemBuilder: (context, index) {

@@ -63,7 +63,20 @@ class ExtendedForecast extends ConsumerWidget {
               child: Row(
                 children: [
                   for (int i = 0; i < displayForecasts.length; i++) ...[
-                    ForecastCard(forecastDay: displayForecasts[i]),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DetailedForecastScreen(
+                              city: city,
+                              initialDate: displayForecasts[i].date,
+                            ),
+                          ),
+                        );
+                      },
+                      child: ForecastCard(forecastDay: displayForecasts[i]),
+                    ),
                     if (i < displayForecasts.length - 1)
                       const SizedBox(width: 12),
                   ],
@@ -72,16 +85,6 @@ class ExtendedForecast extends ConsumerWidget {
             ),
 
             const SizedBox(height: 12),
-
-            // Debug info (remove in production)
-            Text(
-              'Total entries: ${forecast.allForecasts.length} | Days: ${displayForecasts.length}',
-              style: _textStyle(
-                fontSize: 10,
-                color: AppColors.textGray,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
           ],
         );
       },

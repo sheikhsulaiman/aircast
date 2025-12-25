@@ -8,8 +8,15 @@ class ForecastCard extends StatelessWidget {
   final String? day;
   final int? temp;
   final ForecastDay? forecastDay; // NEW: Real forecast data
+  final VoidCallback? onTap;
 
-  const ForecastCard({super.key, this.day, this.temp, this.forecastDay});
+  const ForecastCard({
+    super.key,
+    this.day,
+    this.temp,
+    this.forecastDay,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -29,53 +36,55 @@ class ForecastCard extends StatelessWidget {
         border: Border.all(color: AppColors.textBlack, width: 1.5),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Temperature
-          Text(
-            '$displayTemp°',
-            style: const TextStyle(
-              fontFamily: 'SFCompactDisplay',
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textBlack,
-            ),
-          ),
-
-          const SizedBox(height: 6),
-
-          // Weather icon based on OpenWeatherMap description
-          _getWeatherIcon(description),
-
-          const SizedBox(height: 6),
-
-          // Date
-          Text(
-            displayDay,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontFamily: 'SFProText',
-              fontSize: 11,
-              fontWeight: FontWeight.w400,
-              color: AppColors.textBlack,
-            ),
-          ),
-
-          // Show humidity if forecast data available
-          if (forecastDay != null) ...[
-            const SizedBox(height: 4),
-            Text(
-              '$humidity%',
-              style: const TextStyle(
-                fontFamily: 'SFProText',
-                fontSize: 9,
-                fontWeight: FontWeight.w400,
-                color: AppColors.textGray,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Temperature
+              Text(
+                '$displayTemp°',
+                style: const TextStyle(
+                  fontFamily: 'SFCompactDisplay',
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textBlack,
+                ),
               ),
-            ),
-          ],
-        ],
+
+              const SizedBox(height: 6),
+
+              // Weather icon based on OpenWeatherMap description
+              _getWeatherIcon(description),
+
+              const SizedBox(height: 6),
+
+              // Date
+              Text(
+                displayDay,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontFamily: 'SFProText',
+                  fontSize: 11,
+                  fontWeight: FontWeight.w400,
+                  color: AppColors.textBlack,
+                ),
+              ),
+
+              // Show humidity if forecast data available
+              if (forecastDay != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  '$humidity%',
+                  style: const TextStyle(fontFamily: 'SFProText', fontSize: 9),
+                ),
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }
