@@ -49,10 +49,7 @@ class WeatherCard extends ConsumerWidget {
 
           const SizedBox(height: 8),
 
-          Text(
-            'Now it seems that +20°, in fact +20°. It\'s humid now because of the heavy rain. Today, the temperature is fell in the range from +22° to +28°.',
-            style: _bodyText(fontSize: 13),
-          ),
+          Text(_getDailySummary(weather), style: _bodyText(fontSize: 13)),
 
           const SizedBox(height: 16),
 
@@ -85,7 +82,7 @@ class WeatherCard extends ConsumerWidget {
   TextStyle _heading3() {
     return const TextStyle(
       fontFamily: 'SFProText',
-      fontSize: 14,
+      fontSize: 16,
       fontWeight: FontWeight.w600,
       color: AppColors.textBlack,
     );
@@ -98,5 +95,45 @@ class WeatherCard extends ConsumerWidget {
       fontWeight: FontWeight.w400,
       color: AppColors.textBlack,
     );
+  }
+
+  String _getDailySummary(Weather weather) {
+    final temp = weather.temperature.toStringAsFixed(0);
+    final feelsLike = weather.feelsLike.toStringAsFixed(0);
+    final humidity = weather.humidity;
+    final windSpeed = weather.windSpeed.toStringAsFixed(1);
+    final description = weather.description.toLowerCase();
+
+    // Build weather condition text
+    String weatherCondition = '';
+    if (description.contains('rain')) {
+      weatherCondition = 'rainy weather with possible showers';
+    } else if (description.contains('cloud')) {
+      weatherCondition = 'cloudy skies throughout the day';
+    } else if (description.contains('clear') || description.contains('sunny')) {
+      weatherCondition = 'clear skies with sunshine';
+    } else if (description.contains('snow')) {
+      weatherCondition = 'snowy conditions';
+    } else if (description.contains('storm')) {
+      weatherCondition = 'stormy weather';
+    } else {
+      weatherCondition = 'variable weather';
+    }
+
+    // Build humidity description
+    String humidityDesc = '';
+    if (humidity > 80) {
+      humidityDesc = 'very humid';
+    } else if (humidity > 60) {
+      humidityDesc = 'quite humid';
+    } else if (humidity > 40) {
+      humidityDesc = 'moderate humidity';
+    } else {
+      humidityDesc = 'dry conditions';
+    }
+
+    return 'Currently ${temp}° (feels like ${feelsLike}°). '
+        'Expect ${weatherCondition} with ${humidityDesc} conditions (${humidity}% humidity). '
+        'Wind speed: ${windSpeed} m/s.';
   }
 }
