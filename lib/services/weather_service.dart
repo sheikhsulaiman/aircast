@@ -1,3 +1,4 @@
+import 'package:aircast/models/forecast_model.dart';
 import 'package:dio/dio.dart';
 import '../models/weather_model.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -5,7 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 class WeatherService {
   final Dio _dio = Dio();
   final String _apiKey = dotenv.env['OPENWEATHER_API_KEY'] ?? '';
-  final String _baseUrl = 'https://api.openweathermap.org/data/2.5/weather';
+  final String _baseUrl = 'https://api.openweathermap.org/data/2.5';
 
   WeatherService() {
     _dio.options.connectTimeout = const Duration(seconds: 10);
@@ -17,7 +18,7 @@ class WeatherService {
   Future<Weather> getWeatherByCity(String city) async {
     try {
       final response = await _dio.get(
-        _baseUrl,
+        '$_baseUrl/weather',
         queryParameters: {'q': city, 'appid': _apiKey, 'units': 'metric'},
       );
 
@@ -45,7 +46,7 @@ class WeatherService {
   Future<Weather> getWeatherByCoordinates(String lat, String lon) async {
     try {
       final response = await _dio.get(
-        _baseUrl,
+        '$_baseUrl/weather',
         queryParameters: {
           'lat': lat,
           'lon': lon,
@@ -70,6 +71,67 @@ class WeatherService {
       }
     } catch (e) {
       throw Exception('Unexpected error: $e');
+    }
+  }
+
+  /// Fetch 5-day forecast by city name
+  /// Endpoint: /forecast
+  /// Returns: 40 entries (8 per day for 5 days, 3-hour intervals)
+  ///
+  /// Example API call:
+  /// GET https://api.openweathermap.org/data/2.5/forecast?q=London&appid=KEY&units=metric
+  Future<Forecast> getForecastByCity(String city) async {
+    try {
+      final response = await _dio.get(
+        '$_baseUrl/forecast', // Changed from /weather to /forecast
+        queryParameters: {'q': city, 'appid': _apiKey, 'units': 'metric'},
+      );
+
+      if (response.statusCode == 200) {
+        print(
+          '✅ Forecast loaded: $city - ${response.data['list'].length} entries',
+        );
+        return Forecast.fromJson(response.data);
+      } else {
+        throw Exception('Failed to load forecast data');
+      }
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+        throw Exception('City not found');
+      } else if (e.type == DioExceptionType.connectionTimeout) {
+        throw Exception('Connection timeout');
+      } else {
+        throw Exception('Error: ${e.message}');
+      }
+    } catch (e) {
+      throw Exception('Unexpected error: $e');
+    }
+  }
+
+  /// Fetch 5-day forecast by coordinates
+  /// Endpoint: /forecast
+  Future<Forecast> getForecastByCoordinates(double lat, double lon) async {
+    try {
+      final response = await _dio.get(
+        '$_baseUrl/forecast',
+        queryParameters: {
+          'lat': lat,
+          'lon': lon,
+          'appid': _apiKey,
+          'units': 'metric',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print(
+          '✅ Forecast loaded: $lat, $lon - ${response.data['list'].length} entries',
+        );
+        return Forecast.fromJson(response.data);
+      } else {
+        throw Exception('Failed to load forecast data');
+      }
+    } on DioException catch (e) {
+      throw Exception('Error: ${e.message}');
     }
   }
 }

@@ -1,4 +1,6 @@
+import 'package:aircast/widgets/extended_forecast.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../config/app_colors.dart';
 import '../models/weather_model.dart';
@@ -6,13 +8,13 @@ import 'stats_card.dart';
 import 'forecast_card.dart';
 import 'date_badge.dart';
 
-class WeatherCard extends StatelessWidget {
+class WeatherCard extends ConsumerWidget {
   final Weather weather;
 
   const WeatherCard({super.key, required this.weather});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final cardColor = AppColors.getCardColor(weather.description);
     final today = DateFormat('EEEE, d MMMM').format(DateTime.now());
 
@@ -64,35 +66,8 @@ class WeatherCard extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          // ========== WEEKLY FORECAST ==========
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Weekly forecast', style: _heading3()),
-              const Icon(
-                Icons.arrow_forward,
-                color: AppColors.textBlack,
-                size: 20,
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 12),
-
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                ForecastCard(day: '21 Jan', temp: 26),
-                const SizedBox(width: 12),
-                ForecastCard(day: '22 Jan', temp: 25),
-                const SizedBox(width: 12),
-                ForecastCard(day: '23 Jan', temp: 27),
-                const SizedBox(width: 12),
-                ForecastCard(day: '24 Jan', temp: 26),
-              ],
-            ),
-          ),
+          // NEW: Extended 6-day forecast (separate section)
+          ExtendedForecast(city: weather.city),
         ],
       ),
     );
