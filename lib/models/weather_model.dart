@@ -2,6 +2,7 @@ class Weather {
   final String city;
   final String description;
   final double temperature;
+  final double feelsLike;
   final String icon;
   final int humidity;
   final double windSpeed;
@@ -11,6 +12,7 @@ class Weather {
     required this.city,
     required this.description,
     required this.temperature,
+    required this.feelsLike,
     required this.icon,
     required this.humidity,
     required this.windSpeed,
@@ -22,6 +24,7 @@ class Weather {
       city: json['name'] ?? 'Unknown',
       description: json['weather'][0]['description'] ?? 'No description',
       temperature: (json['main']['temp'] ?? 0).toDouble(),
+      feelsLike: (json['main']['feels_like'] ?? 0).toDouble(),
       icon: json['weather'][0]['icon'] ?? '01d',
       humidity: json['main']['humidity'] ?? 0,
       windSpeed: (json['wind']['speed'] ?? 0).toDouble(),
